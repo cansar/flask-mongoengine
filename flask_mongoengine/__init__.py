@@ -174,7 +174,9 @@ class BaseQuerySet(QuerySet):
         Paginate the QuerySet with a certain number of docs per page
         and return docs for a given page.
         """
-        return Pagination(self, page, per_page)
+        total = kwargs.get("total", None)
+        select_related = kwargs.get("select_related", True)
+        return Pagination(self, page, per_page, total, select_related)
 
     def paginate_field(self, field_name, doc_id, page, per_page, total=None):
         """
