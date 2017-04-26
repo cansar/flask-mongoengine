@@ -8,7 +8,7 @@ __all__ = ("Pagination", "ListFieldPagination")
 
 class Pagination(object):
 
-    def __init__(self, iterable, page, per_page):
+    def __init__(self, iterable, page, per_page, total=None, select_related=True):
 
         if page < 1:
             abort(404)
@@ -17,16 +17,19 @@ class Pagination(object):
         self.page = page
         self.per_page = per_page
 
-        if isinstance(iterable, QuerySet):
-            self.total = iterable.count()
+        if total is not None:
+            self.total = total
         else:
-            self.total = len(iterable)
+            if isinstance(iterable, QuerySet):
+                self.total = iterable.count()
+            else:
+                self.total = len(iterable)
 
         start_index = (page - 1) * per_page
         end_index = page * per_page
 
         self.items = iterable[start_index:end_index]
-        if isinstance(self.items, QuerySet):
+        if isinstance(self.items, QuerySet) and select_related:
             self.items = self.items.select_related()
         if not self.items and page != 1:
             abort(404)
